@@ -62,16 +62,23 @@ class Importer
         puts "(#{i}/#{len}) #{basename} already exists, skip"
         next
       end
-
-      puts "(#{i}/#{len}) importing #{basename}..."
-
-      params = {
-        name: basename,
-        image: File.new(path),
-        mode: 'data',
-        token: token
-      }
-      agent.post("https://#{team_name}.slack.com/api/emoji.add", params)
+      loop do
+        begin
+          puts "(#{i}/#{len}) importing #{basename}..."    
+          params = {
+            name: basename,
+            image: File.new(path),
+            mode: 'data',
+            token: token
+          }
+          agent.post("https://#{team_name}.slack.com/api/emoji.add", params)
+          break
+        rescue
+          puts "Api Error. RetryWait..."
+          sleep(10)
+        end
+      end
+      sleep(0.5)
     end
   end
 
